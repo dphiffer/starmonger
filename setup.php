@@ -180,7 +180,11 @@ function check_setup() {
   $root = __DIR__;
   $issues = array();
   if (!file_exists("$root/twitteroauth/twitteroauth/twitteroauth.php")) {
-    $issues[] = 'Download the and unzip <a href="https://github.com/abraham/twitteroauth/archive/master.zip">twitteroauth</a> library into this directory';
+    if (!file_exists("$root/.git")) {
+      $issues[] = 'Download and unzip <a href="https://github.com/abraham/twitteroauth/archive/master.zip">twitteroauth</a> library into this directory';
+    } else {
+      $issues[] = "To automatically download <a href=\"https://github.com/abraham/twitteroauth\">twitteroauth</a> dependency, type the following into the command line:<br><code><pre>cd $root\ngit submodule init\ngit submodule update</pre></code>";
+    }
   } else {
     require_once "$root/twitteroauth/twitteroauth/twitteroauth.php";
   }
