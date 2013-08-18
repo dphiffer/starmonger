@@ -1,3 +1,4 @@
 config.php
 .DS_Store
 data/.DS_Store
+data/starmonger.db
