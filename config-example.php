@@ -7,7 +7,8 @@ $config = array(
    *
    * The default is fine setting if you don't mind other people downloading your
    * data. Make sure to check that the permissions on the directory allow the
-   * web server's user (usually 'www-data' or 'apache') has write permissions.
+   * web server's user (usually 'www-data' or 'apache') to have write
+   * permission.
    */
   'database_path' => 'data/starmonger.db',
    
