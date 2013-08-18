@@ -61,7 +61,7 @@ function setup_account() {
   if (empty($last_updated) || $now - $last_updated > $min_duration) {
     $account = $twitter->get('account/settings');
     if (empty($account->errors)) {
-      meta_set('twitter_account', json_encode($account, JSON_UNESCAPED_UNICODE));
+      meta_set('twitter_account', json_encode($account));
       meta_set('twitter_account_last_updated', $now);
     }
   } else {
@@ -145,7 +145,7 @@ function save_favorites($favs) {
     $user = strtolower($status->user->screen_name);
     $href = "https://twitter.com/$user/statuses/$status->id";
     $content = tweet_content($status);
-    $json = json_encode($status, JSON_UNESCAPED_UNICODE);
+    $json = json_encode($status);
     $created_at = strtotime($status->created_at);
     $twitter_favorite->execute(array(
       $status->id,
