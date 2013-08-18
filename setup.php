@@ -40,13 +40,16 @@ function setup_db() {
 
 function setup_twitter() {
   global $config;
-  $twitter = new TwitterOAuth(
-    $config->twitter_consumer_key,
-    $config->twitter_consumer_secret,
-    $config->twitter_access_token,
-    $config->twitter_access_token_secret
-  );
-  $twitter->host = 'https://api.twitter.com/1.1/';
+  $twitter = null;
+  if (class_exists('TwitterOAuth')) {
+    $twitter = new TwitterOAuth(
+      $config->twitter_consumer_key,
+      $config->twitter_consumer_secret,
+      $config->twitter_access_token,
+      $config->twitter_access_token_secret
+    );
+    $twitter->host = 'https://api.twitter.com/1.1/';
+  }
   return $twitter;
 }
 
@@ -190,18 +193,21 @@ function check_setup() {
       $issues[] = 'The database path directory doesn’t exist';
     } else if (!is_writable(dirname($config->database_path))) {
       $issues[] = 'The database path directory doesn’t allow write permissions';
+    } else {
+      $db = setup_db();
     }
   }
-  $db = setup_db();
   $twitter = setup_twitter();
-  $account = setup_account();
-  if (empty($account)) {
-    $issues[] = "There was a problem connecting to Twitter.";
-  } else if (!empty($account->errors)) {
-    $error = $account->errors[0];
-    $issues[] = "There was a problem connecting to Twitter: $error->message";
-  } else {
-    setup_timezone();
+  if (!empty($twitter)) {
+    $account = setup_account();
+    if (empty($account)) {
+      $issues[] = "There was a problem connecting to Twitter.";
+    } else if (!empty($account->errors)) {
+      $error = $account->errors[0];
+      $issues[] = "There was a problem connecting to Twitter: $error->message";
+    } else {
+      setup_timezone();
+    }
   }
   if (empty($issues)) {
     return null;
