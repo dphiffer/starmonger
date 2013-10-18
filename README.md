@@ -31,6 +31,20 @@ How to install
   credentials
 * Load it up in a browser!
 
-Try it out
-----------
-You can try out Starmonger at http://phiffer.org/starmonger/
+Other questions
+---------------
+
+**What is this about "API rate limited"?**  
+Twitter limits how much you can use their API so that their servers don't get
+bogged down. It should fix itself after a few minutes.
+
+**Why does that number at the top of the page keep changing?**  
+That is the number of favorites that have been downloaded so far, and they are
+gradually downloaded in batches of 200 (the maximum allowed).
+
+**Can I try out a demo somewhere?**
+Not right now. The current code base does not handle favorites of private
+accounts in a way that doesn't expose those users' content. Please take that
+into consideration when you set up your own installation. Until I add some code
+that does a better job accounting for private accounts, you may inadvertantly
+expose people you're following.
