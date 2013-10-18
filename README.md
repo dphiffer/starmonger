@@ -33,10 +33,10 @@ How to install
 
 Favorites of private accounts
 -----------------------------
-Please take that into consideration when you install this that favorites of
-private accounts are currently shown alongside public ones. This is a problem
-that I intend to fix, but until then please be careful about where you host the
-web app. For example, I'm only running mine on localhost.
+Please take that into consideration that favorites of private accounts are
+currently shown alongside public ones. This is a problem that I intend to fix,
+but until then please be careful about where you host the web app. For example,
+I'm only running mine on localhost.
 
 Other questions
 ---------------
