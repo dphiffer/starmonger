@@ -34,6 +34,10 @@ function setup_db() {
     ");
   } else {
     $db = new PDO("sqlite:$filename");
+    if (! $db) {
+       echo "Uh oh, we couldn't open the database file.";
+       exit;
+    }
   }
   return $db;
 }

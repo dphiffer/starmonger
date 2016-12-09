@@ -15,9 +15,11 @@ if (!empty($problems)) {
   exit;
 }
 
-echo '<!--';
-require_once  "$root/download.php";
-echo '-->';
+if ($config->inline_download) {
+  echo '<!--';
+  require_once  "$root/download.php";
+  echo '-->';
+}
 
 $params = array();
 $where = '';

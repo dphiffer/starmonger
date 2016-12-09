@@ -14,15 +14,22 @@ if (!empty($problems)) {
 
 $status = $twitter->get('application/rate_limit_status');
 $rate_limited = false;
+$verbose = (in_array('--verbose', $argv));
 
 if (!empty($status->resources)) {
   $favorites_list = '/favorites/list';
   if (!empty($status->resources->favorites->$favorites_list)) {
     if (!empty($status->resources->favorites->$favorites_list->remaining)) {
-      archive_oldest_favorites();
-      if (long_enough_since_last_check()) {
-        archive_newest_favorites();
+      if ($verbose) {
+      	 echo "Downloading oldest favorites.\n";
       }
+      archive_oldest_favorites();
+      //if (long_enough_since_last_check()) {
+        if ($verbose) {
+      	  echo "Downloading newest favorites.\n";
+	}
+        archive_newest_favorites();
+      //}
     } else {
       $rate_limited = true;
       $reset = date('Y-m-d H:i:s', $status->resources->favorites->$favorites_list->reset);
