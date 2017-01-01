@@ -92,7 +92,8 @@ function setup_timezone() {
 function archive_oldest_favorites() {
   global $twitter;
   $params = array(
-    'count' => 200
+    'count' => 200,
+    'tweet_mode' => 'extended'
   );
   $oldest_favorite = query("
     SELECT id
@@ -113,7 +114,8 @@ function archive_oldest_favorites() {
 function archive_newest_favorites() {
   global $twitter;
   $params = array(
-    'count' => 200
+    'count' => 200,
+    'tweet_mode' => 'extended'
   );
   $newest_favorite = query("
     SELECT id, saved_at
@@ -304,7 +306,17 @@ function show_footer($min_id = null, $max_id = null) {
 }
 
 function tweet_content($status) {
-  $text = $status->text;
+  if (! empty($status->full_text)) {
+      $text = $status->full_text;
+      if (! empty($status->display_text_range)) {
+          $start = $status->display_text_range[0];
+          $end = $status->display_text_range[1];
+          $length = $end - $start;
+          $text = mb_substr($text, $start, $length);
+      }
+  } else if (! empty($status->text)) {
+      $text = $status->text;
+  }
   $entities = array();
   $entity_types = array('hashtags', 'urls', 'user_mentions');
   foreach ($entity_types as $entity_type) {
