@@ -18,6 +18,7 @@ function setup_db() {
         user VARCHAR(255),
         content TEXT,
         json TEXT,
+        protected INT,
         created_at DATETIME,
         saved_at DATETIME
       );
