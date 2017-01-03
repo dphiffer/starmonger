@@ -14,7 +14,15 @@ if (!empty($problems)) {
 
 $status = $twitter->get('application/rate_limit_status');
 $rate_limited = false;
-$verbose = (in_array('--verbose', $argv));
+
+if (! empty($argv)) {
+  $verbose = (in_array('--verbose', $argv));
+} else if (! empty($_GET['verbose'])) {
+  $verbose = true;
+  echo '<pre>';
+} else {
+  $verbose = false;
+}
 
 if (!empty($status->resources)) {
   $favorites_list = '/favorites/list';
