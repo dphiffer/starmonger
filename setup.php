@@ -492,3 +492,7 @@ function db_migrate($version) {
   }
   meta_set('db_version', $version);
 }
+
+function can_display_tweet($tweet) {
+  return true;
+}

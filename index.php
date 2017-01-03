@@ -74,6 +74,9 @@ foreach ($favs as $index => $fav) {
   }
   $date = date('M j, Y, g:i a', strtotime($fav->created_at));
   $tweet = json_decode($fav->json);
+  if (! can_display_tweet($tweet)) {
+    continue;
+  }
   $content = tweet_content($tweet);
   echo "
     <article id=\"tweet-$fav->id\" class=\"tweet\">
