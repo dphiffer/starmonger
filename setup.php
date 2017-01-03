@@ -1,7 +1,7 @@
 <?php
 
 function setup_db() {
-  global $config;
+  global $config, $db;
   $filename = $config->database_path;
   if (!file_exists($filename)) {
     $db = new PDO("sqlite:$filename");
@@ -40,6 +40,13 @@ function setup_db() {
        exit;
     }
   }
+
+  $db_version = meta_get('db_version');
+  switch ($db_version) {
+     case null:
+        db_migrate(1);
+  }
+
   return $db;
 }
 
@@ -178,6 +185,7 @@ function query($sql, $params = null) {
     $params = array();
   }
   $query = $db->prepare($sql);
+  $error = $db->errorInfo();
   $query->execute($params);
   return $query->fetchAll(PDO::FETCH_OBJ);
 }
@@ -474,4 +482,13 @@ function meta_set($name, $value) {
   $_meta_cache[$name] = $value;
 }
 
-?>
+function db_migrate($version) {
+  global $db;
+  if ($version == 1) {
+    query("
+      ALTER TABLE twitter_favorite
+      ADD COLUMN protected INT
+    ");
+  }
+  meta_set('db_version', $version);
+}
