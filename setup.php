@@ -1,5 +1,20 @@
 <?php
 
+function dbug($msg) {
+  global $argv;
+  if (! is_scalar($msg)) {
+    $msg = print_r($msg, true);
+    $msg = trim($msg);
+  }
+  if (! empty($argv) &&
+      (in_array('--verbose', $argv))) {
+    echo "$msg\n";
+  }
+  if (! empty($_GET['verbose'])) {
+    echo "<pre>$msg\n</pre>";
+  }
+}
+
 function setup_db() {
   global $config, $db;
   $filename = $config->database_path;
@@ -71,13 +86,16 @@ function setup_account() {
   $last_updated = meta_get('twitter_account_last_updated');
   $now = time();
   if (empty($last_updated) || $now - $last_updated > $min_duration) {
+    dbug('loading account');
     $account = $twitter->get('account/settings');
     if (empty($account->errors)) {
       meta_set('twitter_account', json_encode($account));
       meta_set('twitter_account_last_updated', $now);
     }
   } else {
+    dbug('cached account');
     $account = meta_get('twitter_account');
+    dbug($account);
     $account = json_decode($account);
   }
   return $account;
@@ -113,7 +131,9 @@ function archive_oldest_favorites() {
     $oldest_favorite = $oldest_favorite[0];
     $params['max_id'] = $oldest_favorite->id - 1;
   }
+  dbug($params);
   $favs = $twitter->get("favorites/list", $params);
+  dbug($favs);
   if (is_array($favs)) {
     save_favorites($favs);
   }
@@ -136,7 +156,10 @@ function archive_newest_favorites() {
   }
   $newest_favorite = $newest_favorite[0];
   $params['since_id'] = $newest_favorite->id;
+  
+  dbug($params);
   $favs = $twitter->get("favorites/list", $params);
+  dbug($favs);
   if (is_array($favs)) {
     save_favorites($favs);
   }
@@ -494,5 +517,15 @@ function db_migrate($version) {
 }
 
 function can_display_tweet($tweet) {
-  return true;
+  if ($tweet->protected) {
+    return false;
+  }
+  $details = json_decode($tweet->json);
+  if ($details->user->protected) {
+    query("
+      UPDATE twitter_favorite
+      SET protected = 1
+      WHERE id = ?
+    ", array($tweet->id));
+  }
 }
