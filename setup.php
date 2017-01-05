@@ -80,12 +80,14 @@ function setup_twitter() {
   return $twitter;
 }
 
-function setup_account() {
+function setup_account($force_download = false) {
   global $twitter;
   $min_duration = 24 * 60 * 60; // update once per day
   $last_updated = meta_get('twitter_account_last_updated');
   $now = time();
-  if (empty($last_updated) || $now - $last_updated > $min_duration) {
+  if ($force_download ||
+      empty($last_updated) ||
+      $now - $last_updated > $min_duration) {
     dbug('loading account');
     $account = $twitter->get('account/settings');
     if (empty($account->errors)) {
@@ -97,6 +99,9 @@ function setup_account() {
     $account = meta_get('twitter_account');
     dbug($account);
     $account = json_decode($account);
+    if (! $account) {
+      return setup_account(true);
+    }
   }
   return $account;
 }
