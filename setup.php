@@ -88,16 +88,13 @@ function setup_account($force_download = false) {
   if ($force_download ||
       empty($last_updated) ||
       $now - $last_updated > $min_duration) {
-    dbug('loading account');
     $account = $twitter->get('account/settings');
     if (empty($account->errors)) {
       meta_set('twitter_account', json_encode($account));
       meta_set('twitter_account_last_updated', $now);
     }
   } else {
-    dbug('cached account');
     $account = meta_get('twitter_account');
-    dbug($account);
     $account = json_decode($account);
     if (! $account) {
       return setup_account(true);
@@ -522,15 +519,13 @@ function db_migrate($version) {
 }
 
 function can_display_tweet($tweet) {
-  if ($tweet->protected) {
-    return false;
-  }
-  $details = json_decode($tweet->json);
-  if ($details->user->protected) {
+  if ($tweet->user->protected) {
     query("
       UPDATE twitter_favorite
       SET protected = 1
       WHERE id = ?
     ", array($tweet->id));
+    return false;
   }
+  return true;
 }

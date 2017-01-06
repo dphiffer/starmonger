@@ -18,9 +18,6 @@ if (!empty($problems)) {
 $status = $twitter->get('application/rate_limit_status');
 $rate_limited = false;
 
-dbug($status);
-dbug($twitter);
-
 if (!empty($status->resources)) {
   $favorites_list = '/favorites/list';
   if (!empty($status->resources->favorites->$favorites_list)) {
