@@ -382,6 +382,7 @@ function tweet_content($status) {
     }
   }
   $content .= mb_substr($text, $pos, strlen($text) - $pos, 'utf8');
+  $content = nl2br($content);
   return $content;
 }
 
@@ -528,4 +529,37 @@ function can_display_tweet($tweet) {
     return false;
   }
   return true;
+}
+
+function local_media_url($remote_url) {
+  if (! preg_match('#//(.+)$#', $remote_url, $matches)) {
+    return $remote_url;
+  }
+  $path = 'data/media/' . $matches[1];
+  if (file_exists($path)) {
+    return $path;
+  }
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $remote_url);
+  curl_setopt($ch, CURLOPT_HEADER, 0);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+  curl_setopt($ch, CURLOPT_MAXREDIRS, 8);
+  $data = curl_exec($ch);
+  $info = curl_getinfo($ch);
+  curl_close($ch);
+  if ($info['http_code'] < 200 ||
+      $info['http_code'] > 299) {
+    dbug($info);
+    return $remote_url;
+  }
+  $dir = dirname($path);
+  if (! file_exists($dir)) {
+    mkdir($dir, 0755, true);
+  }
+  if (! file_exists($dir)) {
+    return $remote_url;
+  }
+  file_put_contents($path, $data);
+  return $path;
 }

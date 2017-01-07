@@ -78,12 +78,13 @@ foreach ($favs as $index => $fav) {
     continue;
   }
   $content = tweet_content($tweet);
+  $profile_image_url = local_media_url($tweet->user->profile_image_url);
   echo "
     <article id=\"tweet-$fav->id\" class=\"tweet\">
       <div class=\"content\">
         <div class=\"user\">
           <a href=\"https://twitter.com/$fav->user\">
-            <img src=\"{$tweet->user->profile_image_url}\" class=\"profile_image\">
+            <img src=\"$profile_image_url\" class=\"profile_image\">
             <span class=\"name\">{$tweet->user->name}</span>
             <span class=\"screen_name\">@$fav->user</span>
           </a>
