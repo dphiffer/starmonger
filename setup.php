@@ -133,9 +133,7 @@ function archive_oldest_favorites() {
     $oldest_favorite = $oldest_favorite[0];
     $params['max_id'] = $oldest_favorite->id - 1;
   }
-  dbug($params);
   $favs = $twitter->get("favorites/list", $params);
-  dbug($favs);
   if (is_array($favs)) {
     save_favorites($favs);
   }
@@ -158,10 +156,8 @@ function archive_newest_favorites() {
   }
   $newest_favorite = $newest_favorite[0];
   $params['since_id'] = $newest_favorite->id;
-  
-  dbug($params);
+
   $favs = $twitter->get("favorites/list", $params);
-  dbug($favs);
   if (is_array($favs)) {
     save_favorites($favs);
   }
