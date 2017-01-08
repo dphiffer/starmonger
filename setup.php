@@ -196,6 +196,7 @@ function save_favorites($favs) {
       $user,
       $content
     ));
+    local_media_url($status->user->profile_image_url);
   }
   $db->commit();
 }
