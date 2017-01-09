@@ -339,12 +339,6 @@ function show_footer($min_id = null, $max_id = null) {
 function tweet_content($status) {
   if (! empty($status->full_text)) {
       $text = $status->full_text;
-      if (! empty($status->display_text_range)) {
-          $start = $status->display_text_range[0];
-          $end = $status->display_text_range[1];
-          $length = $end - $start;
-          $text = mb_substr($text, $start, $length);
-      }
   } else if (! empty($status->text)) {
       $text = $status->text;
   }
