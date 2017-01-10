@@ -48,5 +48,4 @@ That is the number of favorites that have been downloaded so far, and they are
 gradually downloaded in batches of 200 (the maximum allowed).
 
 **Can I try out a demo somewhere?**  
-Not right now. The current code base does not handle favorites of private
-accounts in a way that doesn't expose those users' content publicly.
+Sure, you can read [my archived faves](https://phiffer.org/starmonger/).
