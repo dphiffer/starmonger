@@ -1,7 +1,7 @@
 <?php
 
 $config = array(
-  
+
   /*
    * 1. Choose where the SQLite database file lives
    *
@@ -11,7 +11,7 @@ $config = array(
    * permission.
    */
   'database_path' => 'data/starmonger.db',
-   
+
   /*
    * 2. Go to https://dev.twitter.com/apps and click 'Create a new application'
    *
@@ -26,7 +26,7 @@ $config = array(
    */
   'twitter_consumer_key' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
   'twitter_consumer_secret' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-  
+
   /*
    * 3. From your application page, click 'Create my access token'
    *
@@ -37,8 +37,18 @@ $config = array(
    * at the bottom of your application page. Enter those below.
    */
   'twitter_access_token' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-  'twitter_access_token_secret' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-   
+  'twitter_access_token_secret' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+
+  /*
+   * 4. Decide if you want to download each time a page is loaded
+   *
+   * You can always download the newest favorites by loading download.php.
+   * Setting this to 'true' will make *any* pageload download favorites, auto-
+   * matically. If you don't enable this, you'll just want to set up a cron
+   * job to ping download.php on some interval.
+   */
+   'inline_download' => false
+
 );
 
 ?>
