@@ -123,19 +123,18 @@ function archive_oldest_favorites() {
     'count' => 200,
     'tweet_mode' => 'extended'
   );
-  $oldest_favorite = query("
-    SELECT id
-    FROM twitter_favorite
-    ORDER BY id
-    LIMIT 1
-  ");
-  if (count($oldest_favorite) == 1) {
-    $oldest_favorite = $oldest_favorite[0];
-    $params['max_id'] = $oldest_favorite->id - 1;
+  $oldest_id = meta_get('oldest_id', 0);
+  if ($oldest_id) {
+    $params['max_id'] = $oldest_id - 1;
   }
   $favs = $twitter->get("favorites/list", $params);
   if (is_array($favs)) {
     save_favorites($favs);
+    if (empty($favs)) {
+      meta_set('oldest_id', 0);
+    } else {
+      meta_set('oldest_id', $favs[$len - 1]->id);
+    }
   }
 }
 
