@@ -145,18 +145,6 @@ function archive_newest_favorites() {
     'count' => 200,
     'tweet_mode' => 'extended'
   );
-  $newest_favorite = query("
-    SELECT id, saved_at
-    FROM twitter_favorite
-    ORDER BY id DESC
-    LIMIT 1
-  ");
-  if (count($newest_favorite) == 0) {
-    return;
-  }
-  $newest_favorite = $newest_favorite[0];
-  $params['since_id'] = $newest_favorite->id;
-
   $favs = $twitter->get("favorites/list", $params);
   if (is_array($favs)) {
     save_favorites($favs);
