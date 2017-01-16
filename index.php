@@ -39,13 +39,14 @@ if (!empty($_GET['q'])) {
   $where .= "
     twitter_favorite_search MATCH ?
     AND twitter_favorite_search.id = twitter_favorite.id
-    AND twitter_favorite.protected != 1
+    AND (twitter_favorite.protected IS NULL OR twitter_favorite.protected = 0)
   ";
   $favs = query("
     SELECT twitter_favorite.id AS id,
            twitter_favorite.user AS user,
            twitter_favorite.json AS json,
            twitter_favorite.href AS href,
+           twitter_favorite.protected AS protected,
            twitter_favorite.created_at AS created_at
     FROM twitter_favorite,
          twitter_favorite_search
