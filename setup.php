@@ -152,6 +152,18 @@ function archive_newest_favorites() {
 
 function save_favorites($favs) {
   global $db;
+  $ids = array();
+  foreach ($favs as $status) {
+    $ids[] = addslashes($status->id);
+  }
+  $ids = implode(', ', $ids);
+  $query = $db->query("
+    SELECT id
+    FROM twitter_favorite
+    WHERE id IN ($ids)
+  ");
+  $existing_ids = $query->fetchAll(PDO::FETCH_COLUMN);
+
   $db->beginTransaction();
   $twitter_favorite = $db->prepare("
     INSERT INTO twitter_favorite
@@ -164,6 +176,10 @@ function save_favorites($favs) {
     VALUES (?, ?, ?)
   ");
   foreach ($favs as $status) {
+    if (in_array($status->id, $existing_ids)) {
+      // TODO: update existing records, to account for new faves/RTs and updated usernames
+      continue;
+    }
     $user = strtolower($status->user->screen_name);
     $href = "https://twitter.com/$user/statuses/$status->id";
     $content = tweet_content($status);
