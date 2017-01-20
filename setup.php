@@ -545,15 +545,25 @@ function local_media_url($remote_url) {
   if ($info['http_code'] < 200 ||
       $info['http_code'] > 299) {
     dbug($info);
-    return $remote_url;
+    return false;
   }
   $dir = dirname($path);
   if (! file_exists($dir)) {
     mkdir($dir, 0755, true);
   }
   if (! file_exists($dir)) {
-    return $remote_url;
+    return false;
   }
   file_put_contents($path, $data);
   return $path;
+}
+
+function load_user_profile($id) {
+  global $twitter;
+  $rsp = $twitter->get('users/lookup', array(
+    'user_id' => $id
+  ));
+  if (! empty($rsp) && is_array($rsp)) {
+    return $rsp[0];
+  }
 }

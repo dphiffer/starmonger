@@ -80,6 +80,10 @@ foreach ($favs as $index => $fav) {
   }
   $content = tweet_content($tweet);
   $profile_image_url = local_media_url($tweet->user->profile_image_url);
+  if (! $profile_image_url) {
+    $user = load_user_profile($tweet->user->id);
+    $profile_image_url = local_media_url($user->profile_image_url);
+  }
   echo "
     <article id=\"tweet-$fav->id\" class=\"tweet\">
       <div class=\"content\">
