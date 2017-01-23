@@ -48,6 +48,19 @@ function setup_db() {
         id, user, content, tokenize=porter
       );
     ");
+    $db->query("
+      CREATE TABLE twitter_media (
+        tweet_id INT,
+        href VARCHAR(255),
+        path VARCHAR(255),
+        saved_at DATETIME
+      );
+    ");
+    $db->query("
+      CREATE INDEX twitter_media_index ON twitter_media (
+        tweet_id, path
+      );
+    ");
   } else {
     $db = new PDO("sqlite:$filename");
     if (! $db) {
@@ -60,6 +73,8 @@ function setup_db() {
   switch ($db_version) {
      case null:
         db_migrate(1);
+     case 1:
+        db_migrate(2);
   }
 
   return $db;
@@ -199,7 +214,7 @@ function save_favorites($favs) {
       $user,
       $content
     ));
-    local_media_url($status->user->profile_image_url);
+    $profile_image = tweet_profile_image($status);
   }
   $db->commit();
 }
@@ -509,6 +524,20 @@ function db_migrate($version) {
       ALTER TABLE twitter_favorite
       ADD COLUMN protected INT
     ");
+  } else if ($version == 2) {
+    query("
+      CREATE TABLE twitter_media (
+        tweet_id INT,
+        href VARCHAR(255),
+        path VARCHAR(255),
+        saved_at DATETIME
+      );
+    ");
+    query("
+      CREATE INDEX twitter_media_index ON twitter_media (
+        tweet_id, path
+      );
+    ");
   }
   meta_set('db_version', $version);
 }
@@ -555,6 +584,30 @@ function local_media_url($remote_url) {
     return false;
   }
   file_put_contents($path, $data);
+  return $path;
+}
+
+function tweet_profile_image($tweet) {
+  $url = str_replace('_normal', '_bigger', $tweet->user->profile_image_url);
+  $path = local_media_url($url);
+  if (! $path) {
+    $updated_user = load_user_profile($tweet->user->id);
+    $url = str_replace('_normal', '_bigger', $tweet->user->profile_image_url);
+    $path = local_media_url($url);
+  }
+  if ($path) {
+    $now = date('Y-m-d H:i:s');
+    query("
+      INSERT INTO twitter_media
+      (tweet_id, href, path, saved_at)
+      VALUES (?, ?, ?, ?)
+    ", array(
+      $tweet->id,
+      $url,
+      $path,
+      $now
+    ));
+  }
   return $path;
 }
 
