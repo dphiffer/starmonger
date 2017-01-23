@@ -52,6 +52,7 @@ function setup_db() {
       CREATE TABLE twitter_media (
         tweet_id INT,
         href VARCHAR(255),
+        redirect VARCHAR(255),
         path VARCHAR(255),
         saved_at DATETIME
       );
@@ -75,6 +76,8 @@ function setup_db() {
         db_migrate(1);
      case 1:
         db_migrate(2);
+     case 2:
+        db_migrate(3);
   }
 
   return $db;
@@ -371,7 +374,8 @@ function tweet_content($status) {
   }
   if (!empty($status->entities->media)) {
     foreach ($status->entities->media as $entity) {
-      $entity->type = 'urls';
+      //dbug($entity);
+      $entity->type = 'media';
       $index = $entity->indices[0];
       $entities[$index] = $entity;
     }
@@ -388,6 +392,8 @@ function tweet_content($status) {
       $content .= "<a href=\"$entity->expanded_url\" title=\"$entity->expanded_url\">$entity->display_url</a>";
     } else if ($entity->type == 'user_mentions') {
       $content .= "<a href=\"https://twitter.com/$entity->screen_name\" class=\"entity\" title=\"$entity->name\">@<span class=\"text\">$entity->screen_name</span></a>";
+    } else if ($entity->type == 'media') {
+      $content .= "<a href=\"$entity->expanded_url\" class=\"media\"><img src=\"{$entity->media_url}:large\" alt=\"\"></a>";
     }
   }
   $content .= mb_substr($text, $pos, strlen($text) - $pos, 'utf8');
@@ -538,6 +544,16 @@ function db_migrate($version) {
         tweet_id, path
       );
     ");
+  } else if ($version == 3) {
+    // Clear out the table, since it will have tons of duplicate rows. There was
+    // a bug in profile image function.
+    query("
+      DELETE FROM twitter_media
+    ");
+    query("
+      ALTER TABLE twitter_media
+      ADD COLUMN redirect VARCHAR(255)
+    ");
   }
   meta_set('db_version', $version);
 }
@@ -554,7 +570,22 @@ function can_display_tweet($tweet) {
   return true;
 }
 
-function local_media_url($remote_url) {
+function local_media($tweet_id, $remote_url) {
+  $cached = query("
+    SELECT *
+    FROM twitter_media
+    WHERE tweet_id = ?
+      AND href = ?
+  ", array($tweet_id, $remote_url));
+  if (! empty($cached)) {
+    $media = $cached[0];
+    if (! empty($media->redirect)) {
+      return local_media($tweet_id, $media->redirect);
+    }
+    if (file_exists($media->path)) {
+      return $media->path;
+    }
+  }
   if (! preg_match('#//(.+)$#', $remote_url, $matches)) {
     return $remote_url;
   }
@@ -584,27 +615,39 @@ function local_media_url($remote_url) {
     return false;
   }
   file_put_contents($path, $data);
+
+  $now = date('Y-m-d H:i:s');
+  query("
+    INSERT INTO twitter_media
+    (tweet_id, href, path, saved_at)
+    VALUES (?, ?, ?, ?)
+  ", array(
+    $tweet_id,
+    $remote_url,
+    $path,
+    $now
+  ));
+
   return $path;
 }
 
 function tweet_profile_image($tweet) {
   $url = str_replace('_normal', '_bigger', $tweet->user->profile_image_url);
-  $path = local_media_url($url);
+  $path = local_media($tweet->id, $url);
   if (! $path) {
     $updated_user = load_user_profile($tweet->user->id);
-    $url = str_replace('_normal', '_bigger', $tweet->user->profile_image_url);
-    $path = local_media_url($url);
-  }
-  if ($path) {
+    $url = str_replace('_normal', '_bigger', $updated_user->profile_image_url);
+    $path = local_media($tweet->id, $url);
+    $orig_url = str_replace('_normal', '_bigger', $tweet->user->profile_image_url);
     $now = date('Y-m-d H:i:s');
     query("
       INSERT INTO twitter_media
-      (tweet_id, href, path, saved_at)
+      (tweet_id, href, redirect, saved_at)
       VALUES (?, ?, ?, ?)
     ", array(
       $tweet->id,
+      $orig_url,
       $url,
-      $path,
       $now
     ));
   }

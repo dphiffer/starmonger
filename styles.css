@@ -1,5 +1,5 @@
 body {
-  font: 14px/18px helvetica, sans-serif;
+  font: 14px/21px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   text-align: center;
 }
 
@@ -14,7 +14,7 @@ a:hover {
 
 #page {
   margin: auto;
-  width: 496px;
+  width: 564px;
   text-align: left;
 }
 
@@ -70,6 +70,19 @@ form {
 
 .tweet .content {
   margin-left: 58px;
+}
+
+.tweet .content .media {
+  display: block;
+  margin: 7px 0 0 0;
+}
+
+.tweet .content .media img {
+  display: inline-block;
+  max-width: 506px;
+  height: auto;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .user a {
