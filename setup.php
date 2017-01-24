@@ -571,26 +571,16 @@ function can_display_tweet($tweet) {
 }
 
 function local_media($tweet_id, $remote_url) {
-  $cached = query("
-    SELECT *
-    FROM twitter_media
-    WHERE tweet_id = ?
-      AND href = ?
-  ", array($tweet_id, $remote_url));
-  if (! empty($cached)) {
-    $media = $cached[0];
-    if (! empty($media->redirect)) {
-      return local_media($tweet_id, $media->redirect);
-    }
-    if (file_exists($media->path)) {
-      return $media->path;
-    }
+  $path = local_media_get_cached($tweet_id, $remote_url);
+  if ($path) {
+    return $path;
   }
   if (! preg_match('#//(.+)$#', $remote_url, $matches)) {
     return $remote_url;
   }
   $path = 'data/media/' . $matches[1];
   if (file_exists($path)) {
+    local_media_set_cached($tweet_id, $remote_url, $path);
     return $path;
   }
   $ch = curl_init();
@@ -616,19 +606,44 @@ function local_media($tweet_id, $remote_url) {
   }
   file_put_contents($path, $data);
 
+  local_media_set_cached($tweet_id, $remote_url, $path);
+
+  return $path;
+}
+
+function local_media_get_cached($tweet_id, $remote_url) {
+  $cached = query("
+    SELECT *
+    FROM twitter_media
+    WHERE tweet_id = ?
+      AND href = ?
+  ", array($tweet_id, $remote_url));
+  if (! empty($cached)) {
+    $media = $cached[0];
+    if (! empty($media->redirect) &&
+        $media_redirect != $remote_url) {
+      return local_media($tweet_id, $media->redirect);
+    }
+    if (file_exists($media->path)) {
+      return $media->path;
+    } else {
+      query("
+        DELETE FROM twitter_media
+        WHERE tweet_id = ?
+          AND href = ?
+      ", array($tweet_id, $remote_url));
+      return null;
+    }
+  }
+}
+
+function local_media_set_cached($tweet_id, $remote_url, $path) {
   $now = date('Y-m-d H:i:s');
   query("
     INSERT INTO twitter_media
     (tweet_id, href, path, saved_at)
     VALUES (?, ?, ?, ?)
-  ", array(
-    $tweet_id,
-    $remote_url,
-    $path,
-    $now
-  ));
-
-  return $path;
+  ", array($tweet_id, $remote_url, $path, $now));
 }
 
 function tweet_profile_image($tweet) {
@@ -639,17 +654,14 @@ function tweet_profile_image($tweet) {
     $url = str_replace('_normal', '_bigger', $updated_user->profile_image_url);
     $path = local_media($tweet->id, $url);
     $orig_url = str_replace('_normal', '_bigger', $tweet->user->profile_image_url);
-    $now = date('Y-m-d H:i:s');
-    query("
-      INSERT INTO twitter_media
-      (tweet_id, href, redirect, saved_at)
-      VALUES (?, ?, ?, ?)
-    ", array(
-      $tweet->id,
-      $orig_url,
-      $url,
-      $now
-    ));
+    if ($orig_url != $url) {
+      $now = date('Y-m-d H:i:s');
+      query("
+        INSERT INTO twitter_media
+        (tweet_id, path, href, redirect, saved_at)
+        VALUES (?, ?, ?, ?, ?)
+      ", array($tweet->id, $orig_url, $url, $now));
+    }
   }
   return $path;
 }
