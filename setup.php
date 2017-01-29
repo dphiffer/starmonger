@@ -393,7 +393,8 @@ function tweet_content($status) {
     } else if ($entity->type == 'user_mentions') {
       $content .= "<a href=\"https://twitter.com/$entity->screen_name\" class=\"entity\" title=\"$entity->name\">@<span class=\"text\">$entity->screen_name</span></a>";
     } else if ($entity->type == 'media') {
-      $content .= "<a href=\"$entity->expanded_url\" class=\"media\"><img src=\"{$entity->media_url}:large\" alt=\"\"></a>";
+      $media_url = local_media($status->id, "{$entity->media_url}:large");
+      $content .= "<a href=\"$entity->expanded_url\" class=\"media\"><img src=\"$media_url\" alt=\"\"></a>";
     }
   }
   $content .= mb_substr($text, $pos, strlen($text) - $pos, 'utf8');
@@ -579,6 +580,10 @@ function local_media($tweet_id, $remote_url) {
     return $remote_url;
   }
   $path = 'data/media/' . $matches[1];
+  if (preg_match('/(\.\w+):\w+$/', $path, $matches)) {
+    // Don't save files that end with '.jpg:large', instead use '.jpg:large.jpg'
+    $path .= $matches[1];
+  }
   if (file_exists($path)) {
     local_media_set_cached($tweet_id, $remote_url, $path);
     return $path;
