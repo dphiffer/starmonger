@@ -423,6 +423,23 @@ function tweet_extended_content($status) {
         $extended_content .= "<a href=\"$video_url\" id=\"gif-$status->id-toggle\"><span class=\"label\">gif</span></a>";
         $extended_content .= "<script>var t = document.getElementById('gif-$status->id-toggle'); t.addEventListener('click', function(e) { e.preventDefault(); document.getElementById('gif-$status->id-video').play(); t.className = 'playing'; });</script>";
         $extended_content .= "</div>";
+      } else if ($entity->type == 'video') {
+        $poster_url = local_media($status->id, "{$entity->media_url}:large");
+        $video_urls = array();
+        foreach ($entity->video_info->variants as $variant) {
+          if ($variant->content_type != 'video/mp4') {
+            continue;
+          }
+          $video_urls[$variant->bitrate] = $variant->url;
+        }
+        if (! empty($video_urls)) {
+          ksort($video_urls);
+          $video_url = array_pop($video_urls);
+          $video_url = local_media($status->id, $video_url);
+          $extended_content .= "<div class=\"media video\">";
+          $extended_content .= "<video src=\"$video_url\" poster=\"$poster_url\" preload=\"none\" controls></video>";
+          $extended_content .= "</div>";
+        }
       }
     }
   }
