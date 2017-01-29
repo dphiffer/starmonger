@@ -415,6 +415,14 @@ function tweet_extended_content($status) {
       if ($entity->type == 'photo') {
         $media_url = local_media($status->id, "{$entity->media_url}:large");
         $extended_content .= "<a href=\"$entity->expanded_url\" class=\"media\"><img src=\"$media_url\" alt=\"\"></a>";
+      } else if ($entity->type == 'animated_gif') {
+        $poster_url = local_media($status->id, "{$entity->media_url}:large");
+        $video_url = local_media($status->id, $entity->video_info->variants[0]->url);
+        $extended_content .= "<div class=\"media animated-gif\">";
+        $extended_content .= "<video src=\"$video_url\" poster=\"$poster_url\" id=\"gif-$status->id-video\" preload=\"none\" loop></video>";
+        $extended_content .= "<a href=\"$video_url\" id=\"gif-$status->id-toggle\"><span class=\"label\">gif</span></a>";
+        $extended_content .= "<script>var t = document.getElementById('gif-$status->id-toggle'); t.addEventListener('click', function(e) { e.preventDefault(); document.getElementById('gif-$status->id-video').play(); t.className = 'playing'; });</script>";
+        $extended_content .= "</div>";
       }
     }
   }

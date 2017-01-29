@@ -77,12 +77,46 @@ form {
   margin: 7px 0 0 0;
 }
 
-.tweet .content .media img {
+.tweet .content .media img,
+.tweet .content .media video {
   display: inline-block;
   max-width: 506px;
   height: auto;
   border-radius: 5px;
   border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.tweet .content .animated-gif {
+  position: relative;
+}
+
+.tweet .content .animated-gif {
+  position: relative;
+}
+
+.tweet .content .animated-gif a {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.tweet .content .animated-gif a .label {
+  position: absolute;
+  bottom: 15px;
+  left: 10px;
+  color: #ccc;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.tweet .content .animated-gif a.playing .label {
+  display: none;
 }
 
 .user a {
