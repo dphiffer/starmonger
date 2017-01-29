@@ -363,6 +363,7 @@ function tweet_content($status) {
   } else if (! empty($status->text)) {
       $text = $status->text;
   }
+  $extended_content = tweet_extended_content($status);
   $entities = array();
   $entity_types = array('hashtags', 'urls', 'user_mentions');
   foreach ($entity_types as $entity_type) {
@@ -372,9 +373,8 @@ function tweet_content($status) {
       $entities[$index] = $entity;
     }
   }
-  if (!empty($status->entities->media)) {
+  if (! empty($status->entities->media)) {
     foreach ($status->entities->media as $entity) {
-      //dbug($entity);
       $entity->type = 'media';
       $index = $entity->indices[0];
       $entities[$index] = $entity;
@@ -393,13 +393,32 @@ function tweet_content($status) {
     } else if ($entity->type == 'user_mentions') {
       $content .= "<a href=\"https://twitter.com/$entity->screen_name\" class=\"entity\" title=\"$entity->name\">@<span class=\"text\">$entity->screen_name</span></a>";
     } else if ($entity->type == 'media') {
-      $media_url = local_media($status->id, "{$entity->media_url}:large");
-      $content .= "<a href=\"$entity->expanded_url\" class=\"media\"><img src=\"$media_url\" alt=\"\"></a>";
+      if (empty($extended_content)) {
+        $media_url = local_media($status->id, "{$entity->media_url}:large");
+        $content .= "<a href=\"$entity->expanded_url\" class=\"media\"><img src=\"$media_url\" alt=\"\"></a>";
+      }
     }
+  }
+  if ($extended_content) {
+    $content .= " $extended_content";
   }
   $content .= mb_substr($text, $pos, strlen($text) - $pos, 'utf8');
   $content = nl2br($content);
   return $content;
+}
+
+function tweet_extended_content($status) {
+  $extended_content = '';
+  if (! empty($status->extended_entities) &&
+      ! empty($status->extended_entities->media)) {
+    foreach ($status->extended_entities->media as $entity) {
+      if ($entity->type == 'photo') {
+        $media_url = local_media($status->id, "{$entity->media_url}:large");
+        $extended_content .= "<a href=\"$entity->expanded_url\" class=\"media\"><img src=\"$media_url\" alt=\"\"></a>";
+      }
+    }
+  }
+  return $extended_content;
 }
 
 function get_earlier_link($max_id = null) {
