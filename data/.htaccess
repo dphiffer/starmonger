@@ -1,0 +1,5 @@
+<Files ~ "\.db$">
+Order Allow,Deny
+Allow from none
+Deny from all
+</Files>
