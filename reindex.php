@@ -4,14 +4,14 @@ include 'setup.php';
 $problems = check_setup();
 
 if (!empty($problems)) {
-  show_header('setup');
-  echo "There are some issues you’ll need to sort out before you can start using Starmonger:\n<ol>\n";
-  foreach ($problems as $problem) {
-    echo "<li>$problem</li>\n";
-  }
-  echo "</ol>";
-  show_footer();
-  exit;
+	show_header('setup');
+	echo "There are some issues you’ll need to sort out before you can start using Starmonger:\n<ol>\n";
+	foreach ($problems as $problem) {
+		echo "<li>$problem</li>\n";
+	}
+	echo "</ol>";
+	show_footer();
+	exit;
 }
 
 query("
