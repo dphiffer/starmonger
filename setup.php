@@ -399,8 +399,8 @@ function tweet_content($status, $quoted = false) {
 			if ($status->quoted_status) {
 				$quoted_username = $status->quoted_status->user->screen_name;
 				$quoted_id = $status->quoted_status->id;
-				$quoted_url = "https://twitter.com/$quoted_username/status/$quoted_id";
-				if ($quoted_url == $entity->expanded_url) {
+				$quoted_url = strtolower("https://twitter.com/$quoted_username/status/$quoted_id");
+				if ($quoted_url == strtolower($entity->expanded_url)) {
 					continue;
 				}
 			}
