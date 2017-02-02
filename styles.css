@@ -78,12 +78,32 @@ form {
 }
 
 .tweet .content .media img,
-.tweet .content .media video {
+.tweet .content .media video,
+.tweet .content .quoted-status {
 	display: inline-block;
 	max-width: 506px;
 	height: auto;
 	border-radius: 5px;
 	border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.tweet .content .quoted-status .media img {
+	max-width: 472px;
+}
+
+.tweet .content .quoted-status {
+	display: block;
+	margin: 7px 0;
+	padding: 12px 15px;
+	position: relative;
+}
+
+.tweet .content .quoted-status .quoted-link {
+	color: #999;
+}
+
+.tweet .content .quoted-status .quoted-link:hover {
+	color: #039;
 }
 
 .tweet .content .animated-gif {

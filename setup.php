@@ -357,13 +357,20 @@ function show_footer($min_id = null, $max_id = null) {
 <?php
 }
 
-function tweet_content($status) {
+function tweet_content($status, $quoted = false) {
 	if (! empty($status->full_text)) {
 			$text = $status->full_text;
 	} else if (! empty($status->text)) {
 			$text = $status->text;
 	}
+
 	$extended_content = tweet_extended_content($status);
+
+	// Ony quote one level deep
+	if (! $quoted) {
+		$quoted_content = tweet_quoted_content($status);
+	}
+
 	$entities = array();
 	$entity_types = array('hashtags', 'urls', 'user_mentions');
 	foreach ($entity_types as $entity_type) {
@@ -389,6 +396,14 @@ function tweet_content($status) {
 		if ($entity->type == 'hashtags') {
 			$content .= "<a href=\"https://twitter.com/search?q=%23$entity->text&src=hash\" class=\"entity\">#<span class=\"text\">$entity->text</span></a>";
 		} else if ($entity->type == 'urls') {
+			if ($status->quoted_status) {
+				$quoted_username = $status->quoted_status->user->screen_name;
+				$quoted_id = $status->quoted_status->id;
+				$quoted_url = "https://twitter.com/$quoted_username/status/$quoted_id";
+				if ($quoted_url == $entity->expanded_url) {
+					continue;
+				}
+			}
 			$content .= "<a href=\"$entity->expanded_url\" title=\"$entity->expanded_url\">$entity->display_url</a>";
 		} else if ($entity->type == 'user_mentions') {
 			$content .= "<a href=\"https://twitter.com/$entity->screen_name\" class=\"entity\" title=\"$entity->name\">@<span class=\"text\">$entity->screen_name</span></a>";
@@ -399,10 +414,20 @@ function tweet_content($status) {
 			}
 		}
 	}
+	$content .= mb_substr($text, $pos, strlen($text) - $pos, 'utf8');
+	
 	if ($extended_content) {
 		$content .= " $extended_content";
 	}
-	$content .= mb_substr($text, $pos, strlen($text) - $pos, 'utf8');
+	if ($quoted_content) {
+		if ($status->display_text_range) {
+			$start = $status->display_text_range[0];
+			$end = $status->display_text_range[1];
+		}
+		$content .= $quoted_content;
+	}
+
+	$content = preg_replace('/\n+/', "\n", $content);
 	$content = nl2br($content);
 	return $content;
 }
@@ -444,6 +469,29 @@ function tweet_extended_content($status) {
 		}
 	}
 	return $extended_content;
+}
+
+function tweet_quoted_content($status) {
+	$quoted_content = '';
+
+	if (! empty($status->quoted_status)) {
+		$is_quoted = true;
+		$name = $status->quoted_status->user->name;
+		$screen_name = $status->quoted_status->user->screen_name;
+		$id = $status->quoted_status->id;
+		$quote_link = "<a href=\"https://twitter.com/$screen_name/status/$id\" class=\"quoted-link\">#</a>";
+		$quote_user = "<div class=\"user\">" .
+			"<a href=\"https://twitter.com/$screen_name\">" .
+				"<span class=\"name\">{$name}</span> " .
+				"<span class=\"screen_name\">@$screen_name</span>" .
+			"</a> $quote_link" .
+		"</div>";
+		$quoted_content = tweet_content($status->quoted_status, $is_quoted);
+		$quoted_content = "$quote_user $quoted_content";
+		$quoted_content = "<div class=\"quoted-status\">$quoted_content</div>";
+	}
+
+	return $quoted_content;
 }
 
 function get_earlier_link($max_id = null) {
