@@ -73,13 +73,13 @@ foreach ($favs as $index => $fav) {
 	if ($index == 0) {
 		$min_id = $fav->id;
 	}
-	$date = date('M j, Y, g:i a', strtotime($fav->created_at));
 	$tweet = json_decode($fav->json);
 	if (! can_display_tweet($tweet)) {
 		continue;
 	}
 	$content = tweet_content($tweet);
 	$profile_image = tweet_profile_image($tweet);
+	$permalink = tweet_permalink($tweet);
 	echo "
 		<article id=\"tweet-$fav->id\" class=\"tweet\">
 			<div class=\"content\">
@@ -89,12 +89,10 @@ foreach ($favs as $index => $fav) {
 						<span class=\"name\">{$tweet->user->name}</span>
 						<span class=\"screen_name\">@$fav->user</span>
 					</a>
+					<span class=\"meta\">&middot; $permalink</span>
 				</div>
 				<div class=\"text\">
 					$content
-				</div>
-				<div class=\"meta\">
-					<a href=\"$fav->href\">$date</a>
 				</div>
 			</div>
 		</article>

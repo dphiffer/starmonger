@@ -184,6 +184,11 @@ form {
 	color: #999;
 }
 
+.meta a:hover {
+	color: #039;
+	text-decoration: underline;
+}
+
 footer {
 	padding: 5px 0 30px 0;
 	position: relative;

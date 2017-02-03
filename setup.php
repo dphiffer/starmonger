@@ -478,13 +478,13 @@ function tweet_quoted_content($status) {
 		$is_quoted = true;
 		$name = $status->quoted_status->user->name;
 		$screen_name = $status->quoted_status->user->screen_name;
-		$id = $status->quoted_status->id;
-		$quote_link = "<a href=\"https://twitter.com/$screen_name/status/$id\" class=\"quoted-link\">#</a>";
+		$permalink = tweet_permalink($status->quoted_status);
 		$quote_user = "<div class=\"user\">" .
 			"<a href=\"https://twitter.com/$screen_name\">" .
 				"<span class=\"name\">{$name}</span> " .
 				"<span class=\"screen_name\">@$screen_name</span>" .
-			"</a> $quote_link" .
+			"</a>" .
+			" <span class=\"meta\"> &middot; $permalink</span>" .
 		"</div>";
 		$quoted_content = tweet_content($status->quoted_status, $is_quoted);
 		$quoted_content = "$quote_user $quoted_content";
@@ -492,6 +492,25 @@ function tweet_quoted_content($status) {
 	}
 
 	return $quoted_content;
+}
+
+function tweet_permalink($status) {
+	$screen_name = $status->user->screen_name;
+	$id = $status->id;
+	$url = "https://twitter.com/$screen_name/status/$id";
+	$timestamp = strtotime($status->created_at);
+	$date_time = date('M j, Y, g:i a', $timestamp);
+	$time_diff = time() - $timestamp;
+	if ($time_diff < 60) {
+		$label = 'just now';
+	} else if ($time_diff < 60 * 60) {
+		$label = floor($time_diff / 60) . 'min';
+	} else if ($time_diff < 60 * 60 * 24) {
+		$label = floor($time_diff / (60 * 60)) . 'hr';
+	} else {
+		$label = date('M j', $timestamp);
+	}
+	return "<a href=\"$url\" title=\"$date_time\">$label</a>";
 }
 
 function get_earlier_link($max_id = null) {
