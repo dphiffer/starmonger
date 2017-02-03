@@ -81,13 +81,14 @@ form {
 .tweet .content .media video,
 .tweet .content .quoted-status {
 	display: inline-block;
-	max-width: 506px;
+	max-width: 504px;
 	height: auto;
 	border-radius: 5px;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.tweet .content .quoted-status .media img {
+.tweet .content .quoted-status .media img,
+.tweet .content .quoted-status .media video {
 	max-width: 472px;
 }
 
