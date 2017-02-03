@@ -59,7 +59,7 @@ if (!empty($_GET['q'])) {
 		SELECT *
 		FROM twitter_favorite
 		$where
-		ORDER BY created_at DESC
+		ORDER BY saved_at DESC
 		LIMIT 20
 	", $params);
 }
