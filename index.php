@@ -51,7 +51,7 @@ if (!empty($_GET['q'])) {
 		FROM twitter_favorite,
 		     twitter_favorite_search
 		$where
-		ORDER BY twitter_favorite.saved_at DESC
+		ORDER BY twitter_favorite.id DESC
 		LIMIT 20
 	", $params);
 } else {
@@ -59,7 +59,7 @@ if (!empty($_GET['q'])) {
 		SELECT *
 		FROM twitter_favorite
 		$where
-		ORDER BY saved_at DESC
+		ORDER BY id DESC
 		LIMIT 20
 	", $params);
 }
