@@ -151,6 +151,7 @@ function archive_oldest_favorites() {
 		if (empty($favs)) {
 			meta_set('oldest_id', 0);
 		} else {
+			$len = count($favs);
 			meta_set('oldest_id', $favs[$len - 1]->id);
 		}
 	}
