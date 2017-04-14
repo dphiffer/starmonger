@@ -62,6 +62,7 @@ function setup_db() {
 				tweet_id, path
 			);
 		");
+		meta_set('db_version', 3);
 	} else {
 		$db = new PDO("sqlite:$filename");
 		if (! $db) {
