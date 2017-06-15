@@ -18,6 +18,7 @@ function dbug($msg) {
 function setup_db() {
 	global $config, $db;
 	$filename = $config->database_path;
+	$curr_db_version = 3;
 	if (!file_exists($filename)) {
 		$db = new PDO("sqlite:$filename");
 		$db->query("
@@ -62,6 +63,7 @@ function setup_db() {
 				tweet_id, path
 			);
 		");
+		meta_set('db_version', $curr_db_version);
 	} else {
 		$db = new PDO("sqlite:$filename");
 		if (! $db) {
@@ -638,6 +640,7 @@ function meta_set($name, $value) {
 
 function db_migrate($version) {
 	global $db;
+
 	if ($version == 1) {
 		query("
 			ALTER TABLE twitter_favorite
